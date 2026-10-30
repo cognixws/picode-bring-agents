@@ -73,6 +73,8 @@ test("a Hermes home becomes one assistant per persona, with its memory, skills a
   assert.match(labels, /Once: runs only once/);
   assert.match(labels, /Script: runs a script, not a message/);
   assert.match(labels, /^2 skills that come with Hermes$/m);
+  const one = readHermes(tree({ "SOUL.md": "You are Ana.", "config.yaml": "model: x\n", "skills/.bundled_manifest": "plan:x\n", "skills/dev/plan/SKILL.md": "---\nname: plan\n---\nx" }));
+  assert.match(one.leftOut.map((l) => l.label).join("\n"), /^1 skill that comes with Hermes$/m);
   assert.match(labels, /Skills Hub, to install again: rss-feeds/);
   assert.match(labels, /tidy\/\.env/);
 });
