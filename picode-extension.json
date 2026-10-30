@@ -1,0 +1,23 @@
+{
+  "id": "bring-agents",
+  "name": "Bring agents",
+  "version": "0.1.0",
+  "apiVersion": 18,
+  "publisher": "COGNIX[WS]",
+  "description": "Bring assistants you set up in OpenClaw or Hermes Agent into COGNIX[WS]: instructions, skills, notes and scheduled tasks. Reads only; keys stay behind.",
+  "icon": "icons/bring-agents.svg",
+  "process": {
+    "command": "node",
+    "args": ["${extensionDir}/process.mjs"]
+  },
+  "activation": { "instance": true },
+  "assistantImporter": {
+    "name": "Bring agents",
+    "sources": [
+      { "id": "openclaw", "title": "OpenClaw" },
+      { "id": "hermes", "title": "Hermes Agent" }
+    ],
+    "scanPath": "/scan",
+    "readPath": "/read"
+  }
+}
