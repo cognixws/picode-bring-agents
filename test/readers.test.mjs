@@ -55,7 +55,7 @@ test("a Hermes home becomes one assistant per persona, with its memory, skills a
   assert.equal(b.kind, "assistants");
   assert.equal(b.source.app, "hermes");
   assert.equal(b.source.ref, "install-abc-123");
-  assert.deepEqual(b.assistants.map((a) => a.key), ["hermes", "coder"]);
+  assert.deepEqual(b.assistants.map((a) => [a.key, a.name]), [["hermes", "Iris"], ["coder", "coder"]]);
   const [iris, coder] = b.assistants;
   assert.equal(iris.instructions, "You are Iris. Be brief.");
   assert.equal(iris.model, "claude-sonnet-4");
@@ -70,9 +70,9 @@ test("a Hermes home becomes one assistant per persona, with its memory, skills a
   assert.ok(!JSON.stringify(b).includes("sk-live"), "no secret value travels");
   assert.ok(!JSON.stringify(b).includes("COGNIX[WS]'s own home"), "COGNIX[WS]'s own homes are not the person's");
   const labels = b.leftOut.map((l) => l.label).join("\n");
-  assert.match(labels, /Once: once at 2026-11-01 is not a repeating cron/);
-  assert.match(labels, /Script: runs a script/);
-  assert.match(labels, /2 skills that come with Hermes/);
+  assert.match(labels, /Once: runs only once/);
+  assert.match(labels, /Script: runs a script, not a message/);
+  assert.match(labels, /^2 skills that come with Hermes$/m);
   assert.match(labels, /Skills Hub, to install again: rss-feeds/);
   assert.match(labels, /tidy\/\.env/);
 });
@@ -139,8 +139,8 @@ test("an OpenClaw state folder becomes one assistant per agent with a workspace"
   assert.ok(!JSON.stringify(b).includes("ghp_should"), "no secret value travels");
   const labels = b.leftOut.map((l) => l.label).join("\n");
   assert.match(labels, /Agent ghost: its workspace folder was not found/);
-  assert.match(labels, /Clawd: 1 daily memory logs/);
-  assert.match(labels, /Every 30s: not a repeating prompt on a cron/);
+  assert.match(labels, /^Clawd: 1 daily memory log$/m);
+  assert.match(labels, /Every 30s: repeats in a way automations here cannot/);
 });
 
 test("OpenClaw's newer job database is named, not read", () => {
@@ -184,6 +184,15 @@ test("the small config readers read what the readers use", () => {
   assert.deepEqual(y.list, ["a", "b"]);
   assert.equal(y.servers.one.url, "https://x#y");
   assert.deepEqual(y.servers.one.args, ["-y", "z"]);
+});
+
+test("a persona file names its assistant", async () => {
+  const { personaName } = await import("../lib/util.mjs");
+  assert.equal(personaName("You are Iris, a calm research assistant."), "Iris");
+  assert.equal(personaName("I'm Bit and I review Go."), "Bit");
+  assert.equal(personaName("Your name is Nova."), "Nova");
+  assert.equal(personaName("You are a helpful assistant."), "");
+  assert.equal(personaName("You are The best."), "");
 });
 
 test("memory files split into entries; secret files are named", () => {
